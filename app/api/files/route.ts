@@ -14,8 +14,11 @@ export async function GET() {
 
     const files = await readdir(uploadsDir);
     
+    // Filter out .gitkeep and hidden files
+    const validFiles = files.filter(f => !f.startsWith('.'));
+    
     const fileDetails = await Promise.all(
-      files.map(async (filename) => {
+      validFiles.map(async (filename) => {
         const filepath = path.join(uploadsDir, filename);
         const stats = await stat(filepath);
         
