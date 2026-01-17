@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { PhotoProvider, PhotoView } from 'react-photo-view';
+import 'react-photo-view/dist/react-photo-view.css';
 
 interface FileData {
   name: string;
@@ -12,6 +14,21 @@ interface FileData {
 
 export default function Home() {
   const [files, setFiles] = useState<FileData[]>([]);
+  const [videoOpen, setVideoOpen] = useState(false);
+  const [videoSrc, setVideoSrc] = useState<string | null>(null);
+
+  // Manage body scroll when video modal open
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    if (videoOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = originalOverflow || '';
+    }
+    return () => {
+      document.body.style.overflow = originalOverflow || '';
+    };
+  }, [videoOpen]);
   const [uploading, setUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState('');
@@ -30,6 +47,14 @@ export default function Home() {
     } catch (err) {
       console.error('Error loading files:', err);
     }
+  };
+
+  const openViewer = (file: FileData) => {
+    if (file.type === 'video') {
+      setVideoSrc(`/uploads/${file.name}`);
+      setVideoOpen(true);
+    }
+    // images are handled by PhotoView wrapper
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -216,6 +241,7 @@ export default function Home() {
                 <p className="text-zinc-300 text-xs font-bold uppercase tracking-widest relative z-10">¡Sé el primero!</p>
               </div>
             ) : (
+              <PhotoProvider>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
                 {files.map((file) => (
                   <div
@@ -223,25 +249,33 @@ export default function Home() {
                     className="group bg-white rounded-[2.5rem] border border-zinc-100 overflow-hidden hover:border-zinc-200 transition-all duration-700 shadow-sm hover:shadow-[0_40px_80px_rgba(0,0,0,0.06)]"
                   >
                     <div className="relative aspect-[5/4] bg-zinc-50 overflow-hidden">
-                      {file.type === 'image' ? (
-                        <Image
-                          src={`/uploads/${file.name}`}
-                          alt={file.name}
-                          fill
-                          className="object-cover group-hover:scale-110 transition-transform duration-[1.5s] ease-out"
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        />
-                      ) : file.type === 'video' ? (
-                        <video
-                          src={`/uploads/${file.name}`}
-                          controls
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-zinc-100">
-                          <span className="text-zinc-300 font-bold uppercase tracking-widest text-[8px]">Binario</span>
-                        </div>
-                      )}
+                          {file.type === 'image' ? (
+                            <PhotoView src={`/uploads/${file.name}`} key={file.name}>
+                              <div className="w-full h-full cursor-pointer">
+                                <Image
+                                  src={`/uploads/${file.name}`}
+                                  alt={file.name}
+                                  fill
+                                  className="object-cover group-hover:scale-110 transition-transform duration-[1.5s] ease-out"
+                                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                />
+                              </div>
+                            </PhotoView>
+                          ) : file.type === 'video' ? (
+                            <div onClick={() => openViewer(file)} className="w-full h-full cursor-pointer">
+                              <video
+                                src={`/uploads/${file.name}`}
+                                preload="metadata"
+                                muted
+                                playsInline
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-zinc-100">
+                              <span className="text-zinc-300 font-bold uppercase tracking-widest text-[8px]">Binario</span>
+                            </div>
+                          )}
                       
                       {/* Subcapa de color sutil en hover */}
                       <div className="absolute inset-0 bg-gradient-to-tr from-pink-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
@@ -268,9 +302,30 @@ export default function Home() {
                   </div>
                 ))}
               </div>
+              </PhotoProvider>
             )}
           </div>
         </div>
+
+        {/* Visualizador nativo: imágenes usan PhotoView; videos usan modal */}
+        {videoOpen && videoSrc && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6"
+            onClick={() => setVideoOpen(false)}
+          >
+            <div className="w-full max-w-4xl bg-black rounded-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
+              <video src={videoSrc} controls autoPlay className="w-full h-auto bg-black" />
+              <div className="flex justify-end p-4 bg-zinc-900/60">
+                <button
+                  onClick={() => setVideoOpen(false)}
+                  className="text-white bg-zinc-800/80 px-4 py-2 rounded-md font-bold"
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Footer */}
