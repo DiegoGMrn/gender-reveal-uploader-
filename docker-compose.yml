@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  app:
+  gender-app:
     build:
       context: .
       dockerfile: Dockerfile
@@ -9,9 +9,10 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
+      - ADMIN_PASSWORD=changeme
     volumes:
-      # Persist uploads across container restarts
-      - uploads-data:/app/uploads
+      # Bind-mount local uploads folder so host manages permissions during development
+      - ./uploads:/app/uploads
     restart: unless-stopped
 
 volumes:
