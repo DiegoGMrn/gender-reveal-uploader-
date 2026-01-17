@@ -33,10 +33,19 @@ COPY --from=builder /app/.next/static ./.next/static
 # Create uploads directory
 RUN mkdir -p /app/uploads && chown -R nextjs:nodejs /app/uploads
 
-USER nextjs
+# Install helper to drop privileges at runtime and add an entrypoint
+RUN apk add --no-cache su-exec
+
+# Copy entrypoint script (created in repository)
+COPY ./docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Do not switch user here; entrypoint will chown the mounted volume and drop privileges
 
 EXPOSE 3000
 
 ENV PORT 3000
 
+# Use entrypoint to ensure correct permissions then run the app as non-root
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["node", "server.js"]
