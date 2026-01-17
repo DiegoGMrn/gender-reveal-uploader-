@@ -10,20 +10,21 @@ const config: Config = {
     extend: {
       colors: {
         pink: {
-          light: '#FFB6C1',
-          DEFAULT: '#FF69B4',
-          dark: '#FF1493',
+          light: "#fff1f2",
+          DEFAULT: "#fb7185",
+          dark: "#e11d48",
         },
         blue: {
-          light: '#87CEEB',
-          DEFAULT: '#4169E1',
-          dark: '#0000CD',
+          light: "#f0f9ff",
+          DEFAULT: "#38bdf8",
+          dark: "#0284c7",
         },
       },
       backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-        'gender-reveal': 'linear-gradient(135deg, #FFB6C1 0%, #87CEEB 100%)',
+        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+        "gradient-conic":
+          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+        "subtle-reveal": "linear-gradient(135deg, #fff1f2 0%, #f0f9ff 100%)",
       },
     },
   },

@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Gender Reveal Gallery",
-  description: "Upload and share your gender reveal photos and videos",
+  description: "Una galería moderna para compartir momentos inolvidables.",
 };
 
 export default function RootLayout({
@@ -15,8 +15,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html lang="es">
+      <body className={`${inter.className} selection:bg-zinc-900 selection:text-white`}>
+        {children}
+      </body>
     </html>
   );
 }
